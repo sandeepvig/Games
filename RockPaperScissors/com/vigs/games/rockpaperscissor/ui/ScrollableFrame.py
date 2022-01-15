@@ -54,7 +54,6 @@ class ScrollableFrame(Frame):
         self.canvas.create_window(0, 0, anchor="nw", window=self.frameForChildComponents)
         self.canvas.update_idletasks()
         self.canvas.configure(scrollregion=self.canvas.bbox("all"))
-        self.canvas.yview_moveto(1.0) ## move the scrollbar to the bottom to display the latest played game
 
 
     def add(self, frame:Frame):
@@ -66,18 +65,22 @@ class ScrollableFrame(Frame):
 
         self.refreshCanvas()
 
+        if frame.winfo_y()+frame.winfo_height() > self.canvas.winfo_height():
+            self.canvas.yview_moveto(1.0)  ## move the scrollbar to the bottom to display the latest played game
+
+
 
     def __addRow(self, frame: Frame):
         self.__rows[len(self.__rows)] = frame
-        #frame.master = self.canvas
         frame.master = self.frameForChildComponents
-        frame.grid(row=len(self.__rows)+1, column=0)
+        frame.grid(row=len(self.__rows), column=0)
         print("Added Row:", len(self.__rows))
 
     def __addColumn(self, frame: Frame):
-        #frame.master = self.canvas
+        self.__columns[len(self.__columns)] = frame
         frame.master = self.frameForChildComponents
         frame.grid(row=0, column=len(self.__columns))
+        print("Column Row:", len(self.__rows))
 
 
 

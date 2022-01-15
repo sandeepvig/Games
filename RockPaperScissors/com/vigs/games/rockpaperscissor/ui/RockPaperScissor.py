@@ -1,11 +1,26 @@
+import random
+from typing import Final
 import tkinter
 
 from com.vigs.games.rockpaperscissor.ui.ScrollableFrame import ScrollableFrame
 
 
 class RockPaperScissor:
+    ROCK: Final[str] = "ROCK"
+    PAPER: Final[str] = "PAPER"
+    SCISSOR: Final[str] = "SCISSOR"
+
+    INPUT_OPTIONS: Final = [ROCK, PAPER, SCISSOR]
+
+    COMPUTER: Final[str] = "COMPUTER"
+    USER: Final[str] = "USER"
+
+
+
     def __init__(self):
-        pass
+        self.userScore: int = 0
+        self.computerScore: int = 0
+
 
     def build(self):
         self.root = tkinter.Tk()
@@ -26,6 +41,7 @@ class RockPaperScissor:
         ################################################################
         self.buildPlayButtonsFrame()
 
+        self.setEventHandlers()
         self.root.mainloop()
 
     def buildPlayerScorecardFrame(self):
@@ -58,8 +74,10 @@ class RockPaperScissor:
 
     def buildPlayHistoryFrame_V1(self, master):
         self.frmPlayInstance = tkinter.Frame(master, height=400, borderwidth=2, background="white")
-        self.btnComputerSelection = tkinter.Button(self.frmPlayInstance, text="Rock", width=20, state="disabled", justify=tkinter.CENTER)
-        self.btnPlayerSelection = tkinter.Button(self.frmPlayInstance, text="Scissor", width=20, state="disabled", justify=tkinter.CENTER)
+        self.btnComputerSelection = tkinter.Button(self.frmPlayInstance, text="Rock", width=20, state="disabled",
+                                                   justify=tkinter.CENTER)
+        self.btnPlayerSelection = tkinter.Button(self.frmPlayInstance, text="Scissor", width=20, state="disabled",
+                                                 justify=tkinter.CENTER)
 
         tkinter.Label(self.frmPlayInstance, height=20).grid(row=0, column=0, columnspan=3)
         self.btnComputerSelection.grid(row=1, column=0, sticky=tkinter.NSEW, padx=10)
@@ -68,16 +86,18 @@ class RockPaperScissor:
         self.frmPlayInstance.grid(row=1, column=0, sticky=tkinter.NSEW)
         return self.frmPlayInstance
 
-    def buildPlayInstanceFrame(self, masterFrame):
-        frmPlayInstance = tkinter.Frame(master=masterFrame)
-        btnComputerSelection = tkinter.Button(frmPlayInstance, text="Rock", width=20, state="disabled", justify=tkinter.CENTER)
-        btnPlayerSelection = tkinter.Button(frmPlayInstance, text="Scissor", width=20, state="disabled", justify=tkinter.CENTER)
+    def buildPlayInstanceFrame(self, masterFrame, userSelection:str, computerSelection:str):
+        self.frmPlayInstance = tkinter.Frame(master=masterFrame)
+        self.btnComputerSelection = tkinter.Button(self.frmPlayInstance, text=computerSelection, width=20, state="normal",
+                                                   justify=tkinter.CENTER)
+        self.btnPlayerSelection = tkinter.Button(self.frmPlayInstance, text=userSelection, width=20, state="normal",
+                                                 justify=tkinter.CENTER)
 
-        btnComputerSelection.grid(row=0, column=0, sticky=tkinter.NSEW, padx=10)
-        tkinter.Frame(frmPlayInstance, width=50).grid(row=0, column=1, sticky=tkinter.NSEW)
-        btnPlayerSelection.grid(row=0, column=2, sticky=tkinter.NSEW, padx=10)
+        self.btnComputerSelection.grid(row=0, column=0, sticky=tkinter.NSEW, padx=10)
+        tkinter.Frame(self.frmPlayInstance, width=50).grid(row=0, column=1, sticky=tkinter.NSEW)
+        self.btnPlayerSelection.grid(row=0, column=2, sticky=tkinter.NSEW, padx=10)
 
-        return frmPlayInstance
+        return self.frmPlayInstance
 
     def buildPlayHistoryFrame_Scrollable(self):
         self.frmPlayHistory = tkinter.Frame(self.root, height=200, width=100)
@@ -85,8 +105,71 @@ class RockPaperScissor:
 
         self.frmScrollable = ScrollableFrame(self.frmPlayHistory, ScrollableFrame.VERTICAL)
 
-        for i in range(40):
-            self.frmScrollable.add(self.buildPlayInstanceFrame(self.frmScrollable.frameForChildComponents))
+        for i in range(-1):
+            #self.frmScrollable.add(self.buildPlayInstanceFrame(self.frmScrollable.frameForChildComponents))
+            self.playGame(self.ROCK)
+
+    def setEventHandlers(self):
+        self.btnRock.bind("<Button-1>", self.rockPressed)
+        self.btnPaper.bind("<Button-1>", self.paperPressed)
+        self.btnScissor.bind("<Button-1>", self.scissorPressed)
+
+    def rockPressed(self, event: tkinter.Event):
+        print("Rock Pressed")
+        self.playGame(self.ROCK)
+
+    def paperPressed(self, event: tkinter.Event):
+        print("Paper Pressed")
+        self.playGame(self.PAPER)
+
+    def scissorPressed(self, event: tkinter.Event):
+        print("Scissor Pressed")
+        self.playGame(self.SCISSOR)
+
+    def playGame(self, userSelection: str):
+        computerSelection = self.generateComputerSelection()
+        winner = self.getWinner(userSelection, computerSelection)
+
+        self.frmScrollable.add(self.buildPlayInstanceFrame(self.frmScrollable.frameForChildComponents, userSelection, computerSelection))
+
+        if winner == self.USER:
+            self.btnPlayerSelection.configure(background="green")
+            self.btnComputerSelection.configure(background="red")
+            self.userScore += 1
+        elif winner == self.COMPUTER:
+            self.btnPlayerSelection.configure(background="red")
+            self.btnComputerSelection.configure(background="green")
+            self.computerScore += 1
+        else: ## game draw
+            self.btnPlayerSelection.configure(background="grey")
+            self.btnComputerSelection.configure(background="grey")
+
+        self.lblPlayerScore1.configure(text=self.computerScore)
+        self.lblPlayerScore2.configure(text=self.userScore)
+
+
+    def getWinner(self, userSelection, computerSelection):
+        if userSelection == computerSelection:
+            return None
+        elif userSelection == self.ROCK and computerSelection == self.PAPER:
+            return self.COMPUTER
+        elif userSelection == self.ROCK and computerSelection == self.SCISSOR:
+            return self.USER
+        elif userSelection == self.PAPER and computerSelection == self.SCISSOR:
+            return self.COMPUTER
+        elif userSelection == self.PAPER and computerSelection == self.ROCK:
+            return self.USER
+        elif userSelection == self.SCISSOR and computerSelection == self.ROCK:
+            return self.COMPUTER
+        elif userSelection == self.SCISSOR and computerSelection == self.PAPER:
+            return self.USER
+
+        print("REACHING HERE MEANS PROBLEM!!! , A CASE HAS BEEN MISSED")
+
+    def generateComputerSelection(self):
+        randomNum = random.randint(0, 2)
+        print(randomNum)
+        return self.INPUT_OPTIONS[randomNum]
 
 
 RockPaperScissor().build()
