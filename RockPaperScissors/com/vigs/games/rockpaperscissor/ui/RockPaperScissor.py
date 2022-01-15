@@ -21,6 +21,8 @@ class RockPaperScissor:
         self.userScore: int = 0
         self.computerScore: int = 0
 
+    def launch(self):
+        self.build()
 
     def build(self):
         self.root = tkinter.Tk()
@@ -172,4 +174,3 @@ class RockPaperScissor:
         return self.INPUT_OPTIONS[randomNum]
 
 
-RockPaperScissor().build()
