@@ -74,19 +74,6 @@ class RockPaperScissor:
 
         self.frmOptions.grid(row=3, column=0)
 
-    def buildPlayHistoryFrame_V1(self, master):
-        self.frmPlayInstance = tkinter.Frame(master, height=400, borderwidth=2, background="white")
-        self.btnComputerSelection = tkinter.Button(self.frmPlayInstance, text="Rock", width=20, state="disabled",
-                                                   justify=tkinter.CENTER)
-        self.btnPlayerSelection = tkinter.Button(self.frmPlayInstance, text="Scissor", width=20, state="disabled",
-                                                 justify=tkinter.CENTER)
-
-        tkinter.Label(self.frmPlayInstance, height=20).grid(row=0, column=0, columnspan=3)
-        self.btnComputerSelection.grid(row=1, column=0, sticky=tkinter.NSEW, padx=10)
-        tkinter.Frame(self.frmPlayInstance, width=50).grid(row=1, column=1, sticky=tkinter.NSEW)
-        self.btnPlayerSelection.grid(row=1, column=2, sticky=tkinter.NSEW, padx=10)
-        self.frmPlayInstance.grid(row=1, column=0, sticky=tkinter.NSEW)
-        return self.frmPlayInstance
 
     def buildPlayInstanceFrame(self, masterFrame, userSelection:str, computerSelection:str):
         self.frmPlayInstance = tkinter.Frame(master=masterFrame)
