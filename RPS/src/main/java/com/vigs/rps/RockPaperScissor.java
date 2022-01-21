@@ -68,13 +68,11 @@ public class RockPaperScissor {
 
 	public Round playRound(int roundNum) throws Exception{
 		System.out.format("Enter your choice (number 1, 2 or 3)\n %s\n %s \n %s", "1. Rock", "2. Paper", "3. Scissor");
-		byte[] b = new byte[10];
-		System.in.read(b);
 		
-		String userInput = new String(b).trim();
+		int userInput = readUserInput("");
 		int computerSelection = randomNum.nextInt(NUM_CHOICES) + 1;
 		
-		Choice userChoice = Choice.forValue(Integer.parseInt(userInput));
+		Choice userChoice = Choice.forValue(userInput);
 		Choice computerChoice = Choice.forValue(computerSelection);
 		
 		int choiceDiff = Math.abs(userChoice.getIntValue()-computerChoice.getIntValue());
@@ -114,7 +112,7 @@ public class RockPaperScissor {
 		}
 		
 		
-		System.out.println("\n\n\n");
+		System.out.println("\n\nRESULTS");
 		for(Round round: rounds) {
 			System.out.println(round);	
 		}
@@ -122,13 +120,26 @@ public class RockPaperScissor {
 		System.out.format("FINAL SCORE \nUser: %s\nComputer: %s\nDraws: %s", userScore, computerScore, draws);
 		
 	}
-	public static void main(String args[]) throws Exception{
-		System.out.println("How many rounds? ");
-		byte[] b = new byte[10];
-		System.in.read(b);
+	
+	private static int readUserInput(String message) throws Exception{
+		String input = null;
+		while(input==null) {
+			System.out.println(message);
+			byte[] b = new byte[10];
+			System.in.read(b);
+			
+			input = new String(b).trim();
+			if(!input.matches("\\d")) {
+				input = null;
+			}
+		}
 		
-		String userInput = new String(b).trim();
-		int numRounds = Integer.parseInt(userInput);
+		return Integer.parseInt(input);		
+	}
+	
+	public static void main(String args[]) throws Exception{
+
+		int numRounds = readUserInput("How many rounds? ");
 		
 		new RockPaperScissor().playGame(numRounds);
 	}
