@@ -67,12 +67,20 @@ public class RockPaperScissor {
 	}
 
 	public Round playRound(int roundNum) throws Exception{
-		System.out.format("Enter your choice (number 1, 2 or 3)\n %s\n %s \n %s", "1. Rock", "2. Paper", "3. Scissor");
+
+		Choice userChoice = null;
+	
+		while(userChoice==null) {
+			System.out.format("Enter your choice (number 1, 2 or 3)\n %s\n %s \n %s", "1. Rock", "2. Paper", "3. Scissor");
+			
+			int userInput = readUserInput("");
+			userChoice = Choice.forValue(userInput);
+			if(userChoice==null) {
+				System.out.println("\nInvalid Choice!!!");
+			}
+		}
 		
-		int userInput = readUserInput("");
 		int computerSelection = randomNum.nextInt(NUM_CHOICES) + 1;
-		
-		Choice userChoice = Choice.forValue(userInput);
 		Choice computerChoice = Choice.forValue(computerSelection);
 		
 		int choiceDiff = Math.abs(userChoice.getIntValue()-computerChoice.getIntValue());
