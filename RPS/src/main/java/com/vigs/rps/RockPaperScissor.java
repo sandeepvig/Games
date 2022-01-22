@@ -133,11 +133,11 @@ public class RockPaperScissor {
 		String input = null;
 		while(input==null) {
 			System.out.println(message);
-			byte[] b = new byte[10];
+			byte[] b = new byte[100];
 			System.in.read(b);
 			
 			input = new String(b).trim();
-			if(!input.matches("\\d")) {
+			if(!input.matches("\\d+")) {
 				input = null;
 			}
 		}
