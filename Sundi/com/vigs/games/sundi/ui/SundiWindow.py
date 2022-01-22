@@ -27,8 +27,8 @@ class SundiWindow:
         self.root = tkinter.Tk()
         self.root.title("Lets play Sundi!!")
 
-        #self.rootFrame = tkinter.Frame(self.root, height=100, width=100, borderwidth=20)
-        #self.rootFrame.grid(row=0, column=0)
+        self.sundiGridFrame = tkinter.Frame(self.root, height=100, width=100, borderwidth=20)
+        self.sundiGridFrame.grid(row=0, column=0)
 
         self.drawGrid()
 
@@ -44,7 +44,7 @@ class SundiWindow:
                 self.drawCell(color="gray", position=(x, y))
 
     def drawCell(self, color: str, position: (int, int)):
-        sundiCell = tkinter.Label(self.root, width=self.cellwidth, height=self.cellheight)
+        sundiCell = tkinter.Label(self.sundiGridFrame, width=self.cellwidth, height=self.cellheight)
         sundiCell.configure(borderwidth=2, background=color, relief="groove")
         sundiCell.grid(row=position[0], column=position[1])
         return sundiCell
@@ -55,6 +55,7 @@ class SundiWindow:
 
     def registerEventHandlers(self):
         self.root.bind("<KeyPress>", self.keyPressed)
+        self.headCell.bind("<Configure>", self.headCellMoved)
 
     def keyPressed(self, event: tkinter.Event):
         print("Key Pressed", event)
@@ -77,28 +78,91 @@ class SundiWindow:
                 self.currentDirection = tkinter.S
                 self.headCell.grid(row=self.headCell.grid_info()["row"]+1)
 
+
+    def headCellMoved(self, event: tkinter.Event):
+        row = self.headCell.grid_info()["row"]
+        column = self.headCell.grid_info()["column"]
+        self.detectGameOver(row=row, column=column)
+
+
     def nextRandomTargetPosition(self):
         return random.randint(0, SundiWindow.MAX_X-1), random.randint(0, SundiWindow.MAX_Y-1)
 
+    def detectGameOver(self, row: int, column: int):
+        if row < 0 or column < 0 or row >= SundiWindow.MAX_X or column >= SundiWindow.MAX_Y:
+            print("GAME OVER!!!!")
+            self.root.title("GAME OVER!!")
+            self.gameStarted = False
+            return True # yes, the game is over
+
+        return False #no, the game is not over
+
+
     def crawlSundi(self):
         while True:
+            time.sleep(0.3) #300ms
             print(self.gameStarted)
             if self.gameStarted:
+                row = self.headCell.grid_info()["row"]
+                column = self.headCell.grid_info()["column"]
+
+                newRow = row
+                newColumn = column
+
+                rowIncrement = 0
+                columnIncrement = 0
+
                 match self.currentDirection:
                     case tkinter.N:
-                        self.headCell.grid(row=self.headCell.grid_info()["row"]-1)
+                        newRow = row-1
+                        rowIncrement = -1
                     case tkinter.S:
-                        self.headCell.grid(row=self.headCell.grid_info()["row"]+1)
+                        newRow = row+1
+                        rowIncrement = 1
                     case tkinter.W:
-                        self.headCell.grid(column=self.headCell.grid_info()["column"]+1)
+                        newColumn = column+1
+                        columnIncrement = 1
                     case tkinter.E:
-                        self.headCell.grid(column=self.headCell.grid_info()["column"]-1)
+                        newColumn = column-1
+                        columnIncrement = -1
+
+                if self.detectGameOver(row=newRow, column=newColumn) is not True:
+                    #self.headCell.grid(row=newRow, column=newColumn)
+                    for sundiCell in self.sundi:
+                        currRow = sundiCell.grid_info()["row"]
+                        currColumn = sundiCell.grid_info()["column"]
+                        sundiCell.grid(row=currRow+rowIncrement, column=currColumn+columnIncrement)
 
                 if self.headCell.grid_info()["row"] == self.targetCell.grid_info()["row"] \
                         and self.headCell.grid_info()["column"] == self.targetCell.grid_info()["column"]:
-                    newTargetPosition: (int, int) = self.nextRandomTargetPosition()
-                    self.targetCell.grid(row=newTargetPosition[0], column=newTargetPosition[1])
+                    self.consumeTarget()
 
-            time.sleep(0.5) #500ms
+
+    def consumeTarget(self):
+        newTargetPosition: (int, int) = self.nextRandomTargetPosition()
+        self.targetCell.grid(row=newTargetPosition[0], column=newTargetPosition[1])
+
+        tailCell: tkinter.Label = self.sundi[len(self.sundi)-1]
+        row_NewCell = tailCell.grid_info()["row"]
+        column_NewCell = tailCell.grid_info()["column"]
+
+        match self.currentDirection:
+            case tkinter.N:
+                row_NewCell -= 1
+            case tkinter.S:
+                row_NewCell += 1
+            case tkinter.W:
+                column_NewCell += 1
+            case tkinter.E:
+                column_NewCell -= 1
+
+        newTailCell = self.drawCell(color="red", position=(row_NewCell, column_NewCell))
+        self.sundi.append(newTailCell)
+
+
+
+
+
+
 
 SundiWindow().launch()
