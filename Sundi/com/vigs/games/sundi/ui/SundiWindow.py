@@ -127,15 +127,20 @@ class SundiWindow:
                         columnIncrement = -1
 
                 if self.detectGameOver(row=newRow, column=newColumn) is not True:
-                    #self.headCell.grid(row=newRow, column=newColumn)
-                    for sundiCell in self.sundi:
-                        currRow = sundiCell.grid_info()["row"]
-                        currColumn = sundiCell.grid_info()["column"]
-                        sundiCell.grid(row=currRow+rowIncrement, column=currColumn+columnIncrement)
+                    for cellIndex in range(len(self.sundi)-1, 0, -1): ##headCell will be excluded and thats what we want
+                        sundiCell: tkinter.Label = self.sundi[cellIndex]
+                        sundiCellNext: tkinter.Label = self.sundi[cellIndex-1]
+                        nextRow = sundiCellNext.grid_info()["row"]
+                        nextColumn = sundiCellNext.grid_info()["column"]
+                        sundiCell.grid(row=nextRow, column=nextColumn)
+
+                    self.headCell.grid(row=newRow, column=newColumn) ##move the head forward
+
 
                 if self.headCell.grid_info()["row"] == self.targetCell.grid_info()["row"] \
                         and self.headCell.grid_info()["column"] == self.targetCell.grid_info()["column"]:
                     self.consumeTarget()
+
 
 
     def consumeTarget(self):
@@ -166,3 +171,4 @@ class SundiWindow:
 
 
 SundiWindow().launch()
+
