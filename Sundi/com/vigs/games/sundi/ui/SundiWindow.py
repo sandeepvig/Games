@@ -100,7 +100,7 @@ class SundiWindow:
 
     def crawlSundi(self):
         while True:
-            time.sleep(0.3) #300ms
+            time.sleep(0.1) #100ms
             print(self.gameStarted)
             if self.gameStarted:
                 row = self.headCell.grid_info()["row"]
