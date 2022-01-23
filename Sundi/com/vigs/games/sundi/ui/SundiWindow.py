@@ -13,6 +13,7 @@ class SundiWindow:
         self.sundi = []
         self.currentDirection = tkinter.W ## anything would do as default
         self.gameStarted = False
+        self.gameOver = False
 
     def launch(self):
         self.build()
@@ -64,19 +65,20 @@ class SundiWindow:
 
         self.gameStarted = True
 
-        match event.keycode:
-            case 37:
-                self.currentDirection = tkinter.E
-                self.headCell.grid(column=self.headCell.grid_info()["column"]-1)
-            case 38:
-                self.currentDirection = tkinter.N
-                self.headCell.grid(row=self.headCell.grid_info()["row"]-1)
-            case 39:
-                self.currentDirection = tkinter.W
-                self.headCell.grid(column=self.headCell.grid_info()["column"]+1)
-            case 40:
-                self.currentDirection = tkinter.S
-                self.headCell.grid(row=self.headCell.grid_info()["row"]+1)
+        if not self.gameOver:
+            match event.keycode:
+                case 37:
+                    self.currentDirection = tkinter.E
+                    self.headCell.grid(column=self.headCell.grid_info()["column"]-1)
+                case 38:
+                    self.currentDirection = tkinter.N
+                    self.headCell.grid(row=self.headCell.grid_info()["row"]-1)
+                case 39:
+                    self.currentDirection = tkinter.W
+                    self.headCell.grid(column=self.headCell.grid_info()["column"]+1)
+                case 40:
+                    self.currentDirection = tkinter.S
+                    self.headCell.grid(row=self.headCell.grid_info()["row"]+1)
 
 
     def headCellMoved(self, event: tkinter.Event):
@@ -92,7 +94,7 @@ class SundiWindow:
         if row < 0 or column < 0 or row >= SundiWindow.MAX_X or column >= SundiWindow.MAX_Y:
             print("GAME OVER!!!!")
             self.root.title("GAME OVER!!")
-            self.gameStarted = False
+            self.gameOver = True
             return True # yes, the game is over
 
         return False #no, the game is not over
@@ -102,7 +104,7 @@ class SundiWindow:
         while True:
             time.sleep(0.1) #100ms
             print(self.gameStarted)
-            if self.gameStarted:
+            if self.gameStarted and not self.gameOver:
                 row = self.headCell.grid_info()["row"]
                 column = self.headCell.grid_info()["column"]
 
