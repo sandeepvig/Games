@@ -1,23 +1,19 @@
 import random
 from typing import Final
 import tkinter
+from com.vigs.games.rockpaperscissor.model.Choice import Choice
+from com.vigs.games.rockpaperscissor.model.PredictionModel import PredictionModel
 
 from com.vigs.games.rockpaperscissor.ui.ScrollableFrame import ScrollableFrame
 
 
 class RockPaperScissor:
-    ROCK: Final[str] = "ROCK"
-    PAPER: Final[str] = "PAPER"
-    SCISSOR: Final[str] = "SCISSOR"
-
-    INPUT_OPTIONS: Final = [ROCK, PAPER, SCISSOR]
 
     COMPUTER: Final[str] = "COMPUTER"
     USER: Final[str] = "USER"
 
-
-
     def __init__(self):
+        self.predictionModel = PredictionModel()
         self.userScore: int = 0
         self.computerScore: int = 0
 
@@ -75,11 +71,11 @@ class RockPaperScissor:
         self.frmOptions.grid(row=3, column=0)
 
 
-    def buildPlayInstanceFrame(self, masterFrame, userSelection:str, computerSelection:str):
+    def buildPlayInstanceFrame(self, masterFrame, userSelection: Choice, computerSelection: Choice):
         self.frmPlayInstance = tkinter.Frame(master=masterFrame)
-        self.btnComputerSelection = tkinter.Button(self.frmPlayInstance, text=computerSelection, width=20, state="normal",
+        self.btnComputerSelection = tkinter.Button(self.frmPlayInstance, text=computerSelection.name, width=20, state="normal",
                                                    justify=tkinter.CENTER)
-        self.btnPlayerSelection = tkinter.Button(self.frmPlayInstance, text=userSelection, width=20, state="normal",
+        self.btnPlayerSelection = tkinter.Button(self.frmPlayInstance, text=userSelection.name, width=20, state="normal",
                                                  justify=tkinter.CENTER)
 
         self.btnComputerSelection.grid(row=0, column=0, sticky=tkinter.NSEW, padx=10)
@@ -105,19 +101,22 @@ class RockPaperScissor:
 
     def rockPressed(self, event: tkinter.Event):
         print("Rock Pressed")
-        self.playGame(self.ROCK)
+        self.playGame(Choice.ROCK)
 
     def paperPressed(self, event: tkinter.Event):
         print("Paper Pressed")
-        self.playGame(self.PAPER)
+        self.playGame(Choice.PAPER)
 
     def scissorPressed(self, event: tkinter.Event):
         print("Scissor Pressed")
-        self.playGame(self.SCISSOR)
+        self.playGame(Choice.SCISSOR)
 
-    def playGame(self, userSelection: str):
+    def playGame(self, userSelection: Choice):
         computerSelection = self.generateComputerSelection()
         winner = self.getWinner(userSelection, computerSelection)
+
+        'inform the PredictionModel'
+        self.predictionModel.updateStats(userSelection, computerSelection)
 
         self.frmScrollable.add(self.buildPlayInstanceFrame(self.frmScrollable.frameForChildComponents, userSelection, computerSelection))
 
@@ -140,24 +139,22 @@ class RockPaperScissor:
     def getWinner(self, userSelection, computerSelection):
         if userSelection == computerSelection:
             return None
-        elif userSelection == self.ROCK and computerSelection == self.PAPER:
+        elif userSelection == Choice.ROCK and computerSelection == Choice.PAPER:
             return self.COMPUTER
-        elif userSelection == self.ROCK and computerSelection == self.SCISSOR:
+        elif userSelection == Choice.ROCK and computerSelection == Choice.SCISSOR:
             return self.USER
-        elif userSelection == self.PAPER and computerSelection == self.SCISSOR:
+        elif userSelection == Choice.PAPER and computerSelection == Choice.SCISSOR:
             return self.COMPUTER
-        elif userSelection == self.PAPER and computerSelection == self.ROCK:
+        elif userSelection == Choice.PAPER and computerSelection == Choice.ROCK:
             return self.USER
-        elif userSelection == self.SCISSOR and computerSelection == self.ROCK:
+        elif userSelection == Choice.SCISSOR and computerSelection == Choice.ROCK:
             return self.COMPUTER
-        elif userSelection == self.SCISSOR and computerSelection == self.PAPER:
+        elif userSelection == Choice.SCISSOR and computerSelection == Choice.PAPER:
             return self.USER
 
         print("REACHING HERE MEANS PROBLEM!!! , A CASE HAS BEEN MISSED")
 
     def generateComputerSelection(self):
-        randomNum = random.randint(0, 2)
-        print(randomNum)
-        return self.INPUT_OPTIONS[randomNum]
+        return self.predictionModel.predict()
 
 
